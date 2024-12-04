@@ -101,7 +101,7 @@ namespace Lab3_CSharp.Models
         {
             return countryName != CountryName;
         }
-        public static bool IsWorkNameUnique(IEnumerable<string> allCountryNames, string countryName)
+        public static bool IsCountryNameUnique(IEnumerable<string> allCountryNames, string countryName)
         {
             return !allCountryNames.Contains(countryName);
         }

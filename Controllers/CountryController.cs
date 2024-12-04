@@ -29,7 +29,7 @@ public class CountryController : Controller
         {
             var names = db.Countries.Select(c => c.CountryName);
 
-            if (country.IsValid() && Country.IsWorkNameUnique(names, country.CountryName))
+            if (country.IsValid() && Country.IsCountryNameUnique(names, country.CountryName))
             {
                 db.Countries.Add(country);
                 db.SaveChanges();
@@ -41,7 +41,7 @@ public class CountryController : Controller
                     errors.Add("Данные о стране не валидны");
                 }
 
-                if (!Country.IsWorkNameUnique(names, country.CountryName))
+                if (!Country.IsCountryNameUnique(names, country.CountryName))
                 {
                     errors.Add("Страна с таким названием уже существует");
                 }
@@ -90,7 +90,7 @@ public class CountryController : Controller
             List<string> countryNames = db.Countries.Select(c => c.CountryName).ToList();
             
             
-            if (country.IsValid() && Country.IsWorkNameUnique(countryNames, country.CountryName))
+            if (country.IsValid() && Country.IsCountryNameUnique(countryNames, country.CountryName))
             {
                 db.Countries.Remove(countryInDb);
                 db.Countries.Add(country);
@@ -102,7 +102,7 @@ public class CountryController : Controller
                 {
                     _errors.Add("Данные о стране не валидны");
                 }
-                if (!Country.IsWorkNameUnique(countryNames, country.CountryName) && 
+                if (!Country.IsCountryNameUnique(countryNames, country.CountryName) && 
                     countryInDb.IsNameChanged(country.CountryName))
                 {
                     _errors.Add("Страна с таким названием уже существует");
