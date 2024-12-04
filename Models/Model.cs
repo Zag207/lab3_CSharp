@@ -30,6 +30,7 @@ namespace Lab3_CSharp.Models
                 Surname = Surname.Trim();
             }
             isValid = isValid && Surname != null && Surname != "";
+            isValid = isValid && Birth_date <= DateOnly.FromDateTime(DateTime.Now.Date);
 
             if (IsDie)
             {
