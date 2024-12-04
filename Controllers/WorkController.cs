@@ -21,9 +21,10 @@ public class WorkController : Controller
     }
     
     // GET
-    public IActionResult Index()
+    public IActionResult Index(List<string>? errors)
     {
         List<Work> workList;
+        errors ??= new List<string>();
         List<Philosopher> philosophersList;
 
         using (ApplicationContext db = new ApplicationContext())
@@ -34,6 +35,7 @@ public class WorkController : Controller
         
         ViewBag.workList = workList;
         ViewBag.freePhilosophers = philosophersList;
+        ViewBag.errors = errors;
         
         return View();
     }
@@ -41,21 +43,37 @@ public class WorkController : Controller
     public IActionResult Create(CreateWorkModel inputModel)
     {
         Work work = new() { WorkName = inputModel.WorkName, Author = null};
-
+        List<string> _errors = new List<string>();
+        
         using (ApplicationContext db = new ApplicationContext())
         {
             List<string> workNames = db.Works.Select(w => w.WorkName).ToList();
             Philosopher? phil = db.Philosophers.FirstOrDefault(p => p.Id == inputModel.AuthorId);
 
-            if (Work.IsWorkNameUnique(workNames, inputModel.WorkName) && phil != null)
+            if (work.IsValid() && Work.IsWorkNameUnique(workNames, inputModel.WorkName) && phil != null)
             {
                 work.Author = phil;
                 db.Works.Add(work);
                 db.SaveChanges();
             }
+            else
+            {
+                if (!work.IsValid())
+                {
+                    _errors.Add("Данные о философском труде не валидны");
+                }
+
+                if (!Models.Work.IsWorkNameUnique(workNames, work.WorkName))
+                {
+                    _errors.Add("Философский труд с таким названием уже существует");
+                }
+            }
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", routeValues: new
+        {
+            errors = _errors
+        });
     }
     
     public IActionResult Delete(int workId)
@@ -74,10 +92,11 @@ public class WorkController : Controller
         return RedirectToAction("Index");
     }
 
-    public IActionResult GetWorkAbout(int workId)
+    public IActionResult GetWorkAbout(int workId, List<string>? errors)
     {
         List<Philosopher> PhilosphersIsNotAuthor;
         Work? work;
+        errors ??= new List<string>();
 
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -86,7 +105,7 @@ public class WorkController : Controller
         }
 
         ViewBag.PhilosphersIsNotAuthor = PhilosphersIsNotAuthor;
-
+        ViewBag.errors = errors;
         GetWorkAbout_UpdateWorkModel model = new() { Id = work.Id, 
             WorkName = work.WorkName, Author = work.Author};
         
@@ -95,6 +114,7 @@ public class WorkController : Controller
 
     public IActionResult Update(GetWorkAbout_UpdateWorkModel model)
     {
+        List<string> _errors = new List<string>();
         Work work = new() { WorkName = model.WorkName, Author = null};
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -109,6 +129,22 @@ public class WorkController : Controller
                 workInDb.WorkName = work.WorkName;
                 isMakeActions = true;
             }
+            else
+            {
+                if (!work.IsValid())
+                {
+                    _errors.Add("Данные о философском труде не валидны");
+                }
+                if (!Models.Work.IsWorkNameUnique(workNames, work.WorkName) && 
+                    workInDb.IsWorkNameChanged(work.WorkName))
+                {
+                    _errors.Add("Философский труд с таким названием уже существует");
+                }
+                else if(!workInDb.IsWorkNameChanged(work.WorkName))
+                {
+                    _errors.Add("Философский труд должнен иметь новое название");
+                }    
+            }
 
             if (author != null)
             {
@@ -116,15 +152,16 @@ public class WorkController : Controller
                 isMakeActions = true;
             }
 
-            if (isMakeActions)
+            if (isMakeActions && _errors.Count == 0)
             {
                 db.SaveChanges();
-                return RedirectToAction("Index");
             }
-            else
+            
+            return RedirectToAction("GetWorkAbout", routeValues: new
             {
-                return RedirectToAction("GetWorkAbout", routeValues: new { workId = workInDb.Id });
-            }
+                workId = workInDb.Id,
+                errors = _errors
+            });
         }
     }
 }

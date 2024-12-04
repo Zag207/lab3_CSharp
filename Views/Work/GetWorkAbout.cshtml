@@ -14,6 +14,7 @@
     <label>
         Введите новое название:
         <input type="text" asp-for="WorkName" placeholder="Название философского труда" value="@Model.WorkName"/>
+        Название философского труда не может состоять из пробелов и символов новой строки
     </label><br/>
     <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
     <label>
@@ -31,7 +32,18 @@
         </select>
     </label><br/>
     <button type="submit">Сохранить изменения</button>
-</form>
+</form><br/>
+@if (ViewBag.errors != null)
+{
+<ul>
+    @foreach (string errorMessage in ViewBag.errors)
+    {
+    <li style="color: crimson">
+        @errorMessage
+    </li>
+    }
+</ul>
+}
 <p>Автор: @($"{@Model.Author.Surname} {@Model.Author.Name}")</p>
 <a asp-action="Index">Обратно к списку</a>
 

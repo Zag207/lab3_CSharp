@@ -31,7 +31,8 @@ else
     <label>
         Название труда:
         <input type="text" placeholder="Название труда" asp-for="WorkName"/>
-    </label>
+        Название философского труда не может состоять из пробелов и символов новой строки
+    </label><br/>
     <label>
         Выберите автора:
         <select asp-for="AuthorId">
@@ -44,6 +45,17 @@ else
                 }
             }
         </select>
-    </label>
+    </label><br/>
     <button type="submit">Создать</button>
-</form>
+</form><br/>
+@if (ViewBag.errors != null)
+{
+<ul>
+    @foreach (string errorMessage in ViewBag.errors)
+    {
+    <li style="color: crimson">
+        @errorMessage
+    </li>
+    }
+</ul>
+}
