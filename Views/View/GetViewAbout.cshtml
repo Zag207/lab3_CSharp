@@ -14,6 +14,7 @@
     <label>
         Введите новое название:
         <input type="text" asp-for="ViewName" placeholder="Название философского течения" value="@Model.ViewName"/>
+        Название философского течения не может состоять из пробелов и символов новой строки
     </label><br/>
     <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
     <label>
@@ -38,17 +39,27 @@
             <option value="-1" disabled selected="selected">Выберите</option>
             @if (@ViewBag.PhilosphersNotInView != null)
             {
-            @foreach (Philosopher phil in @Model.Philosophers)
-            {
-            <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
-            }
+                @foreach (Philosopher phil in @Model.Philosophers)
+                {
+                    <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
+                }
             }
         </select>
     </label><br/>
     
     <button type="submit">Сохранить изменения</button>
 </form>
-<br/>
+@if (ViewBag.errors != null)
+{
+<ul>
+    @foreach (string errorMessage in ViewBag.errors)
+    {
+    <li style="color: crimson">
+        @errorMessage
+    </li>
+    }
+</ul>
+}<br/>
 <a asp-action="Index">Обратно к списку</a>
 <br/>
 @if (@Model.Philosophers != null && @Model.Philosophers.Count > 0)

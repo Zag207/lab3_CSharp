@@ -31,6 +31,18 @@ else
     <label>
         Название течения:
         <input type="text" placeholder="Название течения" asp-for="ViewName"/>
-    </label>
+        Название философского течения не может состоять из пробелов и символов новой строки
+    </label><br/>
     <button type="submit">Создать</button>
 </form>
+@if (ViewBag.errors != null)
+{
+    <ul>
+        @foreach (string errorMessage in ViewBag.errors)
+        {
+            <li style="color: crimson">
+                @errorMessage
+            </li>
+        }
+    </ul>
+}

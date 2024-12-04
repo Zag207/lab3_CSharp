@@ -26,22 +26,24 @@ public class ViewController : Controller
     }
     
     // GET
-    public IActionResult Index()
+    public IActionResult Index(List<string>? errors)
     {
         List<View> viewList;
-
+        errors ??= new List<string>();
         using (ApplicationContext db = new ApplicationContext())
         {
             viewList = db.Views.ToList();
         }
 
         ViewBag.viewList = viewList;
+        ViewBag.errors = errors;
         
         return View();
     }
     
     public IActionResult Create(View view)
     {
+        List<string> _errors = new List<string>();
         using (ApplicationContext db = new ApplicationContext())
         {
             var viewNames = db.Views.Select(v => v.ViewName);
@@ -51,9 +53,24 @@ public class ViewController : Controller
                 db.Views.Add(view);
                 db.SaveChanges();
             }
+            else
+            {
+                if (!view.IsValid())
+                {
+                    _errors.Add("Данные о философском течении не валидны");
+                }
+
+                if (!Models.View.IsViewNameUnique(viewNames, view.ViewName))
+                {
+                    _errors.Add("Философское течение с таким названием уже существует");
+                }
+            }
         }
         
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", routeValues: new
+        {
+            errors = _errors
+        });
     }
     
     public IActionResult Delete(int viewId)
@@ -72,10 +89,11 @@ public class ViewController : Controller
         return RedirectToAction("Index");
     }
     
-    public IActionResult GetViewAbout(int viewId)
+    public IActionResult GetViewAbout(int viewId, List<string>? errors)
     {
         List<Philosopher> PhilosphersNotInView;
         View? view;
+        errors ??= new List<string>();
 
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -85,14 +103,18 @@ public class ViewController : Controller
 
         ViewBag.PhilosphersNotInView = PhilosphersNotInView;
 
-        ViewUpdateModel model = new ViewUpdateModel() { Id = view.Id, 
-            ViewName = view.ViewName, Philosophers = view.Philosophers};
+        ViewUpdateModel model = new ViewUpdateModel{ 
+            Id = view.Id, 
+            ViewName = view.ViewName, Philosophers = view.Philosophers
+        };
         
+        ViewBag.errors = errors;
         return View(model);
     }
 
     public IActionResult Update(ViewUpdateModel viewData)
     {
+        List<string> _errors = new List<string>();
         View view = new View {Id = viewData.Id, ViewName = viewData.ViewName};
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -108,6 +130,23 @@ public class ViewController : Controller
                 viewInDb.ViewName = view.ViewName;
                 isMakeActions = true;
             }
+            else
+            {
+                if (!view.IsValid())
+                {
+                    _errors.Add("Данные о философском течении не валидны");
+                }
+                if (!Models.View.IsViewNameUnique(viewNames, view.ViewName) && 
+                    viewInDb.IsViewNameChanged(view.ViewName))
+                {
+                    _errors.Add("Философское течение с таким названием уже существует");
+                }
+                else if(!viewInDb.IsViewNameChanged(view.ViewName))
+                {
+                    _errors.Add("Философское течение должно иметь новое название");
+                }    
+            }
+            
             if (pred1 && viewData.IsNeedAddPhilosopher())
             {
                 viewInDb.Philosophers.Add(
@@ -122,15 +161,19 @@ public class ViewController : Controller
                     );
                 isMakeActions = true;
             }
-            if (isMakeActions)
+            if (isMakeActions && _errors.Count == 0)
             {
                 db.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("GetViewAbout");
             }
             else
             {
-                return RedirectToAction("GetViewAbout", "View", new { viewId = viewInDb.Id });
+                return RedirectToAction("GetViewAbout", new
+                {
+                    viewId = viewInDb.Id,
+                    errors = _errors
+                });
             }
         }
     }
