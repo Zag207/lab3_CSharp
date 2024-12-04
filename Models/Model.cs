@@ -85,10 +85,15 @@ namespace Lab3_CSharp.Models
 
             return WorkName != null && WorkName != "";
         }
+        
+        public bool IsWorkNameChanged(string workName)
+        {
+            return workName != WorkName;
+        }
+        
         public static bool IsWorkNameUnique(IEnumerable<string> allWorkNames, string WorkName)
         {
-            return allWorkNames.Count() > 0 && !allWorkNames.Contains(WorkName) ||
-                   allWorkNames.IsNullOrEmpty();
+            return !allWorkNames.Contains(WorkName);
         }
     }
 
