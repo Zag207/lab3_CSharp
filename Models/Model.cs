@@ -50,6 +50,11 @@ namespace Lab3_CSharp.Models
         public required string ViewName { get; set; }
         public List<Philosopher> Philosophers { get; set; } = new List<Philosopher>();
         
+        public bool IsViewNameChanged(string viewName)
+        {
+            return viewName != ViewName;
+        }
+        
         public bool IsValid()
         {
             if (ViewName != null)
@@ -61,8 +66,7 @@ namespace Lab3_CSharp.Models
         }
         public static bool IsViewNameUnique(IEnumerable<string> allViewNames, string viewName)
         {
-            return allViewNames.Count() > 0 && !allViewNames.Contains(viewName) ||
-                   allViewNames.IsNullOrEmpty();
+            return !allViewNames.Contains(viewName);
         }
     }
 
