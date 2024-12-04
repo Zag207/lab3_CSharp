@@ -92,14 +92,19 @@ namespace Lab3_CSharp.Models
     {
         public int Id { get; set; }
         public required string CountryName { get; set; }
-        public bool IsValid(IEnumerable<string> countryNames)
+
+        public static bool IsWorkNameUnique(IEnumerable<string> allCountryNames, string countryName)
+        {
+            return !allCountryNames.Contains(countryName);
+        }
+        public bool IsValid()
         {
             if (CountryName != null)
             {
                 CountryName = CountryName.Trim();
             }
 
-            return CountryName != null && CountryName != "" && !countryNames.Contains(CountryName);
+            return CountryName != null && CountryName != "";
         }
     }
 }
