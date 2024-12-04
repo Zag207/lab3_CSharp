@@ -48,10 +48,11 @@ public class PhilosopherController : Controller
     }
     
     // GET
-    public IActionResult Index()
+    public IActionResult Index(List<string>? errors)
     {
         List<Philosopher> philosopherList;
         List<Country> countryList;
+        errors ??= new List<string>();
 
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -61,6 +62,7 @@ public class PhilosopherController : Controller
 
         ViewBag.philosopherList = philosopherList;
         ViewBag.countryList = countryList;
+        ViewBag.errors = errors;
         
         return View();
     }
@@ -69,6 +71,7 @@ public class PhilosopherController : Controller
     {
         Philosopher philosopher = new() { Name = inputModel.Name, Surname = inputModel.Surname, 
             Birth_date = inputModel.Birth_date, Die_date = inputModel.Die_date, IsDie = inputModel.IsDie};
+        List<string> _errors = new List<string>();
 
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -80,9 +83,25 @@ public class PhilosopherController : Controller
                 db.Philosophers.Add(philosopher);
                 db.SaveChanges();
             }
+            else
+            {
+                if (!philosopher.IsValid())
+                {
+                    _errors.Add("Введенные данные не валидны");
+                }
+
+                if (country == null)
+                {
+                    _errors.Add("Выбранной страны не существует");
+                }
+            }
+            
         }
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", routeValues: new
+        {
+            errors = _errors
+        });
     }
     
     public IActionResult Delete(int philosopherId)
@@ -101,11 +120,12 @@ public class PhilosopherController : Controller
         return RedirectToAction("Index");
     }
 
-    public IActionResult GetPhilosopherAbout(int philosopherId)
+    public IActionResult GetPhilosopherAbout(int philosopherId, List<string>? errors)
     {
         List<Country>? countriesNotInPhilosopher = null;
         Philosopher? philosopher = null;
-        List<View>? viewsNotInPhilosopher = null; 
+        List<View>? viewsNotInPhilosopher = null;
+        errors ??= new List<string>();
         
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -146,13 +166,14 @@ public class PhilosopherController : Controller
             
             result = View(model);
         }
-        
+
+        ViewBag.errors = errors;
         return result;
     }
 
     public IActionResult Update(GetPhilosopherAbout_UpdatePhilosopherModel model)
     {
-        IActionResult result = RedirectToAction("GetPhilosopherAbout", routeValues: new{philosopherId = model.Id});
+        List<string> _errors = new List<string>();
 
         using (ApplicationContext db = new ApplicationContext())
         {
@@ -161,8 +182,12 @@ public class PhilosopherController : Controller
 
             if (phil != null)
             {
-                phil.Name = model.Name;
-                phil.Surname = model.Surname;
+                if (phil.IsSurnameNameChanged(model.Name, model.Surname))
+                {
+                    phil.Name = model.Name;
+                    phil.Surname = model.Surname;
+                }
+                
                 phil.Birth_date = model.Birth_date;
                 phil.Die_date = model.Die_date;
                 phil.IsDie = model.IsDie;
@@ -172,9 +197,14 @@ public class PhilosopherController : Controller
                     if (model.IsNeedAddView())
                     {
                         View? view = db.Views.FirstOrDefault(v => v.Id == model.addViewId);
+                        
                         if (view != null)
                         {
                             phil.Views.Add(view);
+                        }
+                        else
+                        {
+                            _errors.Add("Не найдено добавляемое течение");
                         }
                     }
                     if (model.IsNeedRemoveView() && phil.Views.FirstOrDefault(
@@ -183,20 +213,39 @@ public class PhilosopherController : Controller
                     {
                         phil.Views.Remove(phil.Views.FirstOrDefault(v => v.Id == model.removeViewId)!);
                     }
+                    else if (model.IsNeedRemoveView() && phil.Views.FirstOrDefault(
+                                 v => v.Id == model.removeViewId) == null)
+                    {
+                        _errors.Add("Не найдено удаляемое течение");
+                    }
+                    
                     if (model.IsNeedChangeCountry() && db.Countries.FirstOrDefault(
                             c => c.Id == model.CountryLivingId) != null
                        )
                     {
                         phil.CountryLiving = db.Countries.FirstOrDefault(c => c.Id == model.CountryLivingId)!;
                     }
+                    else if (model.IsNeedChangeCountry() && db.Countries.FirstOrDefault(
+                                 c => c.Id == model.CountryLivingId) == null)
+                    {
+                        _errors.Add("Не найдены данные о выбранной стране");
+                    }
                     
 
                     db.SaveChanges();
-                    result = RedirectToAction("Index");
+                }
+                else
+                {
+                    _errors.Add("Данные философа не валидны");
+                    
                 }
             }
         }
         
-        return result;
+        return RedirectToAction("GetPhilosopherAbout", routeValues: new
+        {
+            philosopherId = model.Id,
+            errors = _errors
+        });
     }
 }
