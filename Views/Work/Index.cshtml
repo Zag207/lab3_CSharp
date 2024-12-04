@@ -1,0 +1,49 @@
+﻿@using Lab3_CSharp.Models
+@model Lab3_CSharp.WorkController.CreateWorkModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Title = "Философские труды";
+    Layout = "../_BaseLayout.cshtml";
+}
+
+@if (ViewBag.workList.Count == 0)
+{
+<div>Данных о философских трудах нет</div>
+}
+else
+{
+<ol>
+    @foreach (Work work in ViewBag.workList)
+    {
+    <li>
+        <a asp-action="GetWorkAbout" asp-route-workId="@work.Id">@work.WorkName</a>
+        <form style="display: inline-block" method="post" asp-action="Delete" asp-route-workId="@work.Id">
+            <button type="submit">Удалить</button>
+        </form>
+    </li>
+    }
+</ol>
+}
+<br>
+<h2>Добавить философский труд</h2>
+<form method="post" asp-action="Create">
+    <label>
+        Название труда:
+        <input type="text" placeholder="Название труда" asp-for="WorkName"/>
+    </label>
+    <label>
+        Выберите автора:
+        <select asp-for="AuthorId">
+            <option value="-1" disabled>Выберите</option>
+            @if (@ViewBag.freePhilosophers != null)
+            {
+                @foreach (Philosopher phil in @ViewBag.freePhilosophers)
+                {
+                    <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
+                }
+            }
+        </select>
+    </label>
+    <button type="submit">Создать</button>
+</form>

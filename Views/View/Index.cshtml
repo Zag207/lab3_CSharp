@@ -1,0 +1,36 @@
+﻿@using Lab3_CSharp.Models
+@model Lab3_CSharp.Models.View
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+ViewBag.Title = "Философские течения";
+Layout = "../_BaseLayout.cshtml";
+}
+
+@if (ViewBag.viewList.Count == 0)
+{
+<div>Данных о философских течениях нет</div>
+}
+else
+{
+<ol>
+    @foreach (View view in ViewBag.viewList)
+    {
+    <li>
+        <a asp-action="GetViewAbout" asp-route-viewId="@view.Id">@view.ViewName</a>
+        <form style="display: inline-block" method="post" asp-action="Delete" asp-route-viewId="@view.Id">
+            <button type="submit">Удалить</button>
+        </form>
+    </li>
+    }
+</ol>
+}
+<br>
+<h2>Добавить философское течение</h2>
+<form method="post" asp-action="Create">
+    <label>
+        Название течения:
+        <input type="text" placeholder="Название течения" asp-for="ViewName"/>
+    </label>
+    <button type="submit">Создать</button>
+</form>

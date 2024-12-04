@@ -1,0 +1,38 @@
+﻿@model Lab3_CSharp.WorkController.GetWorkAbout_UpdateWorkModel
+@using Lab3_CSharp.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Title = "О философском труде";
+    Layout = "../_BaseLayout.cshtml";
+}
+
+<p>Название: @Model.WorkName</p>
+
+<h2>Изменить данные</h2>
+<form method="post" asp-action="Update">
+    <label>
+        Введите новое название:
+        <input type="text" asp-for="WorkName" placeholder="Название философского труда" value="@Model.WorkName"/>
+    </label><br/>
+    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
+    <label>
+        Изменить автора:
+        <select asp-for="newAuthorId">
+            <option value="-1" disabled selected="selected">Выберите</option>
+
+            @if (@ViewBag.PhilosphersIsNotAuthor != null)
+            {
+                @foreach (Philosopher phil in @ViewBag.PhilosphersIsNotAuthor)
+                {
+                    <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
+                }
+            }
+        </select>
+    </label><br/>
+    <button type="submit">Сохранить изменения</button>
+</form>
+<p>Автор: @($"{@Model.Author.Surname} {@Model.Author.Name}")</p>
+<a asp-action="Index">Обратно к списку</a>
+
+

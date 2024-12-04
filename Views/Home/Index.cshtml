@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Главная</title>
+</head>
+<body>
+<div>
+    <ol>
+        <li>
+            <a asp-controller="Philosopher">К философам</a>
+        </li>
+        <li>
+            <a asp-controller="View">К философским течениям</a>
+        </li>
+        <li>
+            <a asp-controller="Country">К странам</a>
+        </li>
+        <li>
+            <a asp-controller="Work">К философским трудам</a>
+        </li>
+    </ol>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+﻿@using Lab3_CSharp.Models
+@model Lab3_CSharp.ViewController.ViewUpdateModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Title = "О философском течении";
+    Layout = "../_BaseLayout.cshtml";
+}
+
+<p>Название: @Model.ViewName</p>
+
+<h2>Изменить данные</h2>
+<form method="post" asp-action="Update">
+    <label>
+        Введите новое название:
+        <input type="text" asp-for="ViewName" placeholder="Название философского течения" value="@Model.ViewName"/>
+    </label><br/>
+    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
+    <label>
+        Прикрепить философа: 
+        <select asp-for="addPhilosopherId">
+            <option value="-1" disabled>Выберите</option>
+
+            @if (@ViewBag.PhilosphersNotInView != null)
+            {
+                @foreach (Philosopher phil in @ViewBag.PhilosphersNotInView)
+                {
+                    <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
+                }
+            }
+
+        </select>
+
+    </label><br/>
+    <label>
+        Открепить философа:
+        <select asp-for="removePhilosopherId">
+            <option value="-1" disabled selected="selected">Выберите</option>
+            @if (@ViewBag.PhilosphersNotInView != null)
+            {
+            @foreach (Philosopher phil in @Model.Philosophers)
+            {
+            <option value="@phil.Id">@($"{phil.Surname} {phil.Name}")</option>
+            }
+            }
+        </select>
+    </label><br/>
+    
+    <button type="submit">Сохранить изменения</button>
+</form>
+<br/>
+<a asp-action="Index">Обратно к списку</a>
+<br/>
+@if (@Model.Philosophers != null && @Model.Philosophers.Count > 0)
+{
+    <ol>
+        @foreach (Philosopher phil in @Model.Philosophers)
+        {
+            <li class="@phil.Id">
+                @($"{phil.Surname} {phil.Name}")
+            </li>
+        }
+    </ol>
+} 
+else 
+{
+    <div>Не найдено прикрепленных философов :(</div>
+}

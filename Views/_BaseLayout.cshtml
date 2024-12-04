@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = ViewBag.Title.ToString() == "" ? "Главная" : ViewBag.Title;
+}
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+<div>
+    <a asp-controller="Home" asp-action="Index">На главную страницу</a>
+    <h2>@ViewBag.Title</h2>
+    <div>
+        @RenderBody()
+    </div>
+    @* <footer> *@
+    @* </footer> *@
+</div>
+</body>
+</html>

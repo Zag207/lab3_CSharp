@@ -1,0 +1,22 @@
+﻿@model Lab3_CSharp.Models.Country
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Title = @Model.CountryName;
+    Layout = "../_BaseLayout.cshtml";
+}
+
+<p>Название: @Model.CountryName</p>
+
+<h2>Изменить данные</h2>
+<form method="post" asp-action="Update">
+    <label>
+        Введите новое название:
+        <input type="text" asp-for="CountryName" placeholder="Название страны" value="@Model.CountryName"/>
+        </label>
+    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
+    <button type="submit">Сохранить изменения</button>
+</form>
+<br/>
+<a asp-action="Index">Обратно к списку</a>
+

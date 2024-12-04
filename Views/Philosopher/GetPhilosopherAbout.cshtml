@@ -1,0 +1,115 @@
+﻿@using Lab3_CSharp.Models
+@model Lab3_CSharp.PhilosopherController.GetPhilosopherAbout_UpdatePhilosopherModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Title = "О философе";
+    Layout = "../_BaseLayout.cshtml";
+}
+
+<h2>Данные о философе</h2>
+<form method="post" action="Update">
+    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
+    <label>
+        Фамилия философа:
+        <input type="text" placeholder="Фамилия философа" asp-for="Surname"/>
+    </label><br/>
+    <label>
+        Имя философа:
+        <input type="text" placeholder="Имя философа" asp-for="Name"/>
+    </label><br/>
+    <label>
+        Дата рождения:
+        <input type="date" asp-for="Birth_date"/>
+    </label><br/>
+    <label>
+        Дата смерти:
+        @if(@Model.IsDie)
+        {
+            <input type="date" asp-for="Die_date"/>
+        }
+        else
+        {
+            <input type="date" value="1212-12-12" asp-for="Die_date"/>
+        }
+    </label><br/>
+    <label>
+        Философ умер?
+        @if(@Model.IsDie)
+        {
+            <input type="checkbox" checked="checked" asp-for="IsDie"/>
+        }
+        else
+        {
+            <input type="checkbox" asp-for="IsDie"/>
+        }
+    </label><br/>
+    <label>
+        Страна проживания философа:
+        <select asp-for="CountryLivingId">
+            <option value="-1" disabled selected="selected">@Model.CountryLiving.CountryName</option>
+            @if (@ViewBag.countriesNotInPhilosopher != null)
+            {
+                @foreach (Country country in @ViewBag.countriesNotInPhilosopher)
+                {
+                    <option value="@country.Id">@country.CountryName</option>
+                }
+            }
+        </select>
+    </label><br/>
+    <label>
+        Добавить новое течение к философу:
+        <select asp-for="addViewId">
+            <option value="-1" selected="selected" disabled>Выберите</option>
+            @if (@ViewBag.viewsNotInPhilosopher != null)
+            {
+                @foreach (View view in @ViewBag.viewsNotInPhilosopher)
+                {
+                    <option value="@view.Id">@view.ViewName</option>
+                }
+            }
+        </select>
+    </label><br>
+    <label>
+        Удалить новое течение у философа:
+        <select asp-for="removeViewId">
+            <option value="-1" selected="selected" disabled>Выберите</option>
+            @if (@Model.PhilosopherViewList != null)
+            {
+                @foreach (View view in @Model.PhilosopherViewList)
+                {
+                    <option value="@view.Id">@view.ViewName</option>
+                }
+            }
+        </select>
+    </label><br>
+    <button type="submit">Изменить</button>
+</form>
+<h3>Течения философа</h3>
+@if (@Model.PhilosopherViewList == null || @Model.PhilosopherViewList.Count == 0)
+{
+    <div>Философ не принадлежит какому-либо течению</div>
+}
+else
+{
+    <ol>
+        @foreach (View view in @Model.PhilosopherViewList)
+        {
+            <li>@view.ViewName</li>
+        }
+    </ol>
+}<br/>
+<h3>Труды философа</h3>
+@if (@Model.PhilosopherWorkNameList == null || @Model.PhilosopherViewList.Count == 0)
+{
+<div>Философ не написал какой-либо труд</div>
+}
+else
+{
+<ol>
+    @foreach (string workName in @Model.PhilosopherWorkNameList)
+    {
+    <li>@workName</li>
+    }
+</ol>
+}
