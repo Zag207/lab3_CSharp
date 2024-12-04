@@ -1,3 +1,18 @@
+using Lab3_CSharp.Models;
+using Microsoft.EntityFrameworkCore;
+
+using (ApplicationContext db = new ApplicationContext())
+{
+    try
+    {
+        db.Database.SqlQuery<int?>(@$"select * from public.Views").SingleOrDefault();
+    }
+    catch (Exception e)
+    {
+        db.Database.Migrate();
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
