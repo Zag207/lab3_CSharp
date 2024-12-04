@@ -17,8 +17,7 @@ else
         @foreach (Country country in ViewBag.countryList)
         {
             <li>
-                <a asp-action="GetCountryAbout" asp-route-id="@country.Id" 
-                   asp-route-countryName="@country.CountryName">@country.CountryName</a>
+                <a asp-action="GetCountryAbout" asp-route-id="@country.Id">@country.CountryName</a>
                 <form style="display: inline-block" method="post" asp-action="Delete" asp-route-countryId="@country.Id">
                     <button type="submit">Удалить</button>
                 </form>
@@ -32,6 +31,18 @@ else
     <label>
         Название страны: 
         <input type="text" placeholder="Название страны" asp-for="CountryName"/>
-    </label>
+        Название страны не может состоять из пробелов и символов новой строки
+    </label><br/>
     <button type="submit">Создать</button>
 </form>
+@if (ViewBag.errors != null)
+{
+    <ul>
+        @foreach (string errorMessage in ViewBag.errors)
+        {
+            <li style="color: crimson">
+                @errorMessage
+            </li>
+        }
+    </ul>
+}

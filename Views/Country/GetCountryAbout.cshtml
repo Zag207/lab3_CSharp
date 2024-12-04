@@ -13,10 +13,21 @@
     <label>
         Введите новое название:
         <input type="text" asp-for="CountryName" placeholder="Название страны" value="@Model.CountryName"/>
+        Название страны не может состоять из пробелов и символов новой строки
         </label>
-    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/>
+    <input style="display: none" type="number" value="@Model.Id" asp-for="Id"/><br/>
     <button type="submit">Сохранить изменения</button>
 </form>
 <br/>
 <a asp-action="Index">Обратно к списку</a>
-
+@if (ViewBag.errors != null)
+{
+    <ul>
+        @foreach (string errorMessage in ViewBag.errors)
+        {
+            <li style="color: crimson">
+                @errorMessage
+            </li>
+        }
+    </ul>
+}

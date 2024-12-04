@@ -6,8 +6,9 @@ namespace Lab3_CSharp;
 
 public class CountryController : Controller
 {
-    public IActionResult Index()
+    public IActionResult Index(List<string>? errors)
     {
+        errors ??= new List<string>();
         List<Country> countryList;
 
         using (ApplicationContext db = new ApplicationContext())
@@ -16,28 +17,51 @@ public class CountryController : Controller
         }
 
         ViewBag.countryList = countryList;
+        ViewBag.errors = errors;
         
         return View();
     }
 
     public IActionResult Create(Country country)
     {
+        List<string> errors = new List<string>();
         using (ApplicationContext db = new ApplicationContext())
         {
             var names = db.Countries.Select(c => c.CountryName);
 
-            if (country.IsValid(names))
+            if (country.IsValid() && Country.IsWorkNameUnique(names, country.CountryName))
             {
                 db.Countries.Add(country);
                 db.SaveChanges();
             }
+            else
+            {
+                if (!country.IsValid())
+                {
+                    errors.Add("Данные о стране не валидны");
+                }
+
+                if (!Country.IsWorkNameUnique(names, country.CountryName))
+                {
+                    errors.Add("Страна с таким названием уже существует");
+                }
+            }
         }
         
-        return Redirect($"~/Country/Index/");
+        return RedirectToAction("Index", routeValues: new{errors = errors});
     }
     
-    public IActionResult GetCountryAbout(Country country)
+    public IActionResult GetCountryAbout(int id, List<string>? errors)
     {
+        errors ??= new List<string>();
+        Country? country;
+
+        using (ApplicationContext db = new ApplicationContext())
+        {
+            country = db.Countries.FirstOrDefault(c => c.Id == id);
+        }
+        
+        ViewBag.errors = errors;
         return View(country);
     }
     
@@ -54,28 +78,45 @@ public class CountryController : Controller
             }
         }
 
-        return Redirect($"~/Country/Index/");
+        return RedirectToAction("Index");
     }
 
     public IActionResult Update(Country country)
     {
+        List<string> _errors = new List<string>();
         using (ApplicationContext db = new ApplicationContext())
         {
             Country countryInDb = db.Countries.First(c => c.Id == country.Id);
-            List<string>? countryNames = db.Countries.Select(c => c.CountryName).ToList();
+            List<string> countryNames = db.Countries.Select(c => c.CountryName).ToList();
             
-            if (country.IsValid(countryNames))
+            
+            if (country.IsValid() && Country.IsWorkNameUnique(countryNames, country.CountryName))
             {
                 db.Countries.Remove(countryInDb);
                 db.Countries.Add(country);
                 db.SaveChanges();
-
-                return Redirect($"~/Country/Index");
             }
             else
             {
-                return RedirectToAction("GetCountryAbout", "Country", countryInDb);
+                if (!country.IsValid())
+                {
+                    _errors.Add("Данные о стране не валидны");
+                }
+                if (!Country.IsWorkNameUnique(countryNames, country.CountryName) && 
+                    countryInDb.IsNameChanged(country.CountryName))
+                {
+                    _errors.Add("Страна с таким названием уже существует");
+                }
+                else if(!countryInDb.IsNameChanged(country.CountryName))
+                {
+                    _errors.Add("Страна должна иметь новое название");
+                }
             }
+            return RedirectToAction("GetCountryAbout", routeValues: new
+            {
+                id = countryInDb.Id, 
+                errors = _errors
+            });
         }
     }
 }

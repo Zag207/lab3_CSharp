@@ -93,6 +93,10 @@ namespace Lab3_CSharp.Models
         public int Id { get; set; }
         public required string CountryName { get; set; }
 
+        public bool IsNameChanged(string countryName)
+        {
+            return countryName != CountryName;
+        }
         public static bool IsWorkNameUnique(IEnumerable<string> allCountryNames, string countryName)
         {
             return !allCountryNames.Contains(countryName);
