@@ -31,23 +31,27 @@ else
     <label>
         Фамилия философа:
         <input type="text" placeholder="Фамилия философа" asp-for="Surname"/>
+        Не может состоять из пробелов и символов перевода строки
     </label><br/>
     <label>
         Имя философа:
         <input type="text" placeholder="Имя философа" asp-for="Name"/>
+        Не может состоять из пробелов и символов перевода строки
     </label><br/>
     <label>
         Дата рождения:
         <input type="date" asp-for="Birth_date"/>
+        Не может быть позже текущей даты
     </label><br/>
     <label>
         Дата смерти:
         <input type="date" value=@("@(DateTime.Now.Year) - @(DateTime.Now.Month) - @(DateTime.Now.Day)") 
                asp-for="Die_date"/>
+        Если философ умер, то не может быть раньше даты рождения
     </label><br/>
     <label>
         Философ умер
-        <input type="checkbox" value="false" asp-for="IsDie"/>
+        <input type="checkbox" asp-for="IsDie"/>
     </label><br/>
     <label>
         Выберите страну проживания философа:
@@ -63,4 +67,15 @@ else
         </select>
     </label><br/>
     <button type="submit">Создать</button>
-</form>
+</form><br/>
+@if (ViewBag.errors != null)
+{
+<ul>
+    @foreach (string errorMessage in ViewBag.errors)
+    {
+    <li style="color: crimson">
+        @errorMessage
+    </li>
+    }
+</ul>
+}
