@@ -5,7 +5,7 @@ using (ApplicationContext db = new ApplicationContext())
 {
     try
     {
-        db.Database.SqlQuery<int?>(@$"select * from public.Views").SingleOrDefault();
+        db.Database.SqlQuery<int?>(@$"select * from public.Views limit 1").SingleOrDefault();
     }
     catch (Exception e)
     {
