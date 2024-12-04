@@ -42,6 +42,11 @@ namespace Lab3_CSharp.Models
 
             return isValid;
         }
+
+        public bool IsSurnameNameChanged(string name, string surname)
+        {
+            return Name + Surname != name + surname;
+        }
     }
 
     public class View
